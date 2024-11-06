@@ -1,0 +1,34 @@
+# 베이스 이미지를 선택합니다 (Python 3.9 버전을 예시로 사용).
+FROM python:3.12.7-slim
+
+# Django 소스 코드를 컨테이너로 복사합니다.
+COPY ./review-spot /root/review-spot    
+
+# 작업 디렉터리를 설정합니다.
+WORKDIR /root/review-spot/review_spot_backend
+
+# 필요한 시스템 종속성을 설치합니다.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 필요한 Python 패키지를 설치합니다.
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 환경 변수를 설정하여 Django가 이 컨테이너 내에서 실행되도록 합니다.
+ENV PYTHONUNBUFFERED=1
+
+# 장고 static 파일을 모으는 명령어를 실행합니다.
+RUN python manage.py collectstatic --noinput
+
+RUN mkdir /var/log/gunicorn/
+
+# 컨테이너가 실행될 때 기본적으로 Gunicorn을 시작하도록 설정합니다.
+CMD ["gunicorn", \
+"--error-logfile", "/var/log/gunicorn/error.log", \
+ "--bind", "0.0.0.0:8000",\
+ "--log-level", "debug",\
+ "--workers", "5",\
+ "--threads", "2",\
+ "review_spot_backend.wsgi:application"]

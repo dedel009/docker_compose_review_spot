@@ -1,0 +1,40 @@
+services:
+  # nginx
+  nginx:
+    image: nginx
+    container_name: review-spot-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/review-spot-nginx.conf
+      - ./review-spot/review_spot_backend/static:/var/www/static
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    restart: always
+  # 장고 웹 서버
+  web:
+    build:
+      context: .
+      dockerfile: dockerfile_review_spot_web_server
+    container_name: review-spot-web
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - postgresql-db
+  postgresql-db:
+    image: postgres:latest
+    container_name: review-spot-db    
+    ports: 
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data      
+    environment:
+      POSTGRES_DB : review_spot_main
+      POSTGRES_USER : developer
+      POSTGRES_PASSWORD : reviewspot  
+    restart: always  
+    
+volumes:
+  postgres_data:    
