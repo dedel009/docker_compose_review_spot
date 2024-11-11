@@ -25,7 +25,8 @@ RUN python manage.py collectstatic --noinput
 RUN mkdir /var/log/gunicorn/
 
 # 컨테이너가 실행될 때 기본적으로 Gunicorn을 시작하도록 설정합니다.
-CMD ["gunicorn", \
+CMD ["sh", "-c", "python manage.py makemigrations && ", "python manage.py migrate && ", \
+"gunicorn", \
 "--error-logfile", "/var/log/gunicorn/error.log", \
  "--bind", "0.0.0.0:8000",\
  "--log-level", "debug",\
