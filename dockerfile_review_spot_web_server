@@ -25,11 +25,6 @@ RUN python manage.py collectstatic --noinput
 RUN mkdir /var/log/gunicorn/
 
 # 컨테이너가 실행될 때 기본적으로 Gunicorn을 시작하도록 설정합니다.
-CMD ["sh", "-c", "python manage.py makemigrations && ", "python manage.py migrate && ", \
-"gunicorn", \
-"--error-logfile", "/var/log/gunicorn/error.log", \
- "--bind", "0.0.0.0:8000",\
- "--log-level", "debug",\
- "--workers", "5",\
- "--threads", "2",\
- "review_spot_backend.wsgi:application"]
+# 여러 명령어를 &&로 연결해 순차적으로 실행하고 싶을 때는 
+# sh -c 내부에 하나의 문자열로 명령어 전체를 작성해야 합니다.
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --error-logfile /var/log/gunicorn/error.log --bind 0.0.0.0:8000 --log-level debug --workers 5 --threads 2 review_spot_backend.wsgi:application"]
