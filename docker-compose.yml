@@ -17,6 +17,8 @@ services:
     build:
       context: .
       dockerfile: dockerfile_review_spot_web_server
+    environment:
+      - DJANGO_ENV=production
     container_name: review-spot-web
     ports:
       - "8000:8000"
